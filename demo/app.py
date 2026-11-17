@@ -1,10 +1,8 @@
 import json
-import os
 import sys
 from pathlib import Path
 
 import cv2
-import gdown
 import numpy as np
 import streamlit as st
 import torch
@@ -24,16 +22,6 @@ st.set_page_config(
     page_icon="🏭",
     layout="wide",
 )
-
-CKPT_DIR = ROOT_DIR / "checkpoints"
-if not CKPT_DIR.exists() or len(list(CKPT_DIR.iterdir())) == 0:
-    with st.spinner("Downloading model checkpoints from Google Drive..."):
-        gdown.download_folder(
-            url="https://drive.google.com/drive/folders/1Hb7WIvnyWMhRCj_QI9KuAfepi_DxeZH2?usp=sharing",
-            output=str(CKPT_DIR),
-            quiet=False,
-            use_cookies=False,
-        )
 
 ALL_CATEGORIES = [
     "bottle", "cable", "capsule", "carpet", "grid",
@@ -120,7 +108,10 @@ with col2:
     else:
         model = load_trained_model(model_choice, category)
         if model is None:
-            st.error(f"Checkpoint not found: checkpoints/{model_choice}/{category}_seed42.pt")
+            st.error(
+                f"Checkpoint not found: `checkpoints/{model_choice}/{category}_seed42.pt`. "
+                "Please download the pretrained checkpoints from the Google Drive link in README.md."
+            )
         else:
             pil_img = Image.open(uploaded_file).convert("RGB")
             rgb_np = np.array(pil_img.resize((256, 256)))
