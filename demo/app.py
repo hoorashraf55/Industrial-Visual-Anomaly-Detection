@@ -1,28 +1,19 @@
-import json
-import sys
+iimport json
 import os
-import gdown
+import sys
 from pathlib import Path
 
-if not os.path.exists("checkpoints") or len(os.listdir("checkpoints")) == 0:
-    with st.spinner("Downloading model checkpoints from Google Drive..."):
-        gdown.download_folder(
-            url="https://drive.google.com/drive/folders/1Hb7WIvnyWMhRCj_QI9KuAfepi_DxeZH2?usp=sharing",
-            output="checkpoints",
-            quiet=False,
-            use_cookies=False
-        )
-
-ROOT_DIR = Path(__file__).resolve().parent.parent
-if str(ROOT_DIR) not in sys.path:
-    sys.path.insert(0, str(ROOT_DIR))
-
 import cv2
+import gdown
 import numpy as np
 import streamlit as st
 import torch
 from PIL import Image
 from torchvision import transforms
+
+ROOT_DIR = Path(__file__).resolve().parent.parent
+if str(ROOT_DIR) not in sys.path:
+    sys.path.insert(0, str(ROOT_DIR))
 
 from src.models.autoencoder import CNNAutoencoder
 from src.models.efficientad import EfficientADModel
@@ -33,6 +24,16 @@ st.set_page_config(
     page_icon="🏭",
     layout="wide",
 )
+
+CKPT_DIR = ROOT_DIR / "checkpoints"
+if not CKPT_DIR.exists() or len(list(CKPT_DIR.iterdir())) == 0:
+    with st.spinner("Downloading model checkpoints from Google Drive..."):
+        gdown.download_folder(
+            url="https://drive.google.com/drive/folders/1Hb7WIvnyWMhRCj_QI9KuAfepi_DxeZH2?usp=sharing",
+            output=str(CKPT_DIR),
+            quiet=False,
+            use_cookies=False,
+        )
 
 ALL_CATEGORIES = [
     "bottle", "cable", "capsule", "carpet", "grid",
