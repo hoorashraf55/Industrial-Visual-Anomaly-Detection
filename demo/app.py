@@ -1,6 +1,17 @@
 import json
 import sys
+import os
+import gdown
 from pathlib import Path
+
+if not os.path.exists("checkpoints") or len(os.listdir("checkpoints")) == 0:
+    with st.spinner("Downloading model checkpoints from Google Drive..."):
+        gdown.download_folder(
+            url="https://drive.google.com/drive/folders/1Hb7WIvnyWMhRCj_QI9KuAfepi_DxeZH2?usp=sharing",
+            output="checkpoints",
+            quiet=False,
+            use_cookies=False
+        )
 
 ROOT_DIR = Path(__file__).resolve().parent.parent
 if str(ROOT_DIR) not in sys.path:
