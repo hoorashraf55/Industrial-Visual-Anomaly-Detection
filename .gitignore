@@ -1,0 +1,14 @@
+.venv/
+__pycache__/
+*.py[cod]
+.vscode/
+/data/raw
+/data/extracted
+/data/cache
+/checkpoints/*
+!checkpoints/.gitkeep
+*.pth
+*.pt
+*.ckpt
+*.tar.xz
+*.zip

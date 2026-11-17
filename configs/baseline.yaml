@@ -1,0 +1,16 @@
+﻿model: baseline
+
+feature_extractor: HOG
+classifier: OneClassSVM
+
+patch_size: 32
+kernel: rbf
+nu: 0.05
+
+image_size: 256
+batch_size: 4
+
+seeds:
+  - 42
+  - 123
+  - 2026

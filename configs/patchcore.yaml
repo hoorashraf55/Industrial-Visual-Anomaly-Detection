@@ -1,0 +1,17 @@
+﻿model: patchcore
+
+backbone: WideResNet50_2
+feature_layers:
+  - layer2
+  - layer3
+
+coreset_sampling_ratio: 0.1
+n_neighbors: 3
+
+image_size: 256
+batch_size: 4
+
+seeds:
+  - 42
+  - 123
+  - 2026

@@ -1,0 +1,21 @@
+﻿model: efficientad
+
+teacher_backbone: ResNet18
+teacher_features: layer2
+student_architecture: Custom_PDN
+
+out_channels: 128
+autoencoder_branch: true
+
+optimizer: Adam
+learning_rate: 0.001
+weight_decay: 0.0
+
+batch_size: 4
+epochs: 15
+image_size: 256
+
+seeds:
+  - 42
+  - 123
+  - 2026

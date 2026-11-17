@@ -1,0 +1,21 @@
+﻿model: autoencoder
+architecture: ConvolutionalAutoencoder
+
+pretrained_encoder: false
+
+loss:
+  name: MSE_Gradient
+  alpha: 0.85
+
+optimizer: Adam
+learning_rate: 0.001
+weight_decay: 0.00001
+
+batch_size: 4
+epochs: 15
+image_size: 256
+
+seeds:
+  - 42
+  - 123
+  - 2026
