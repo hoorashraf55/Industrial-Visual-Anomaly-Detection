@@ -44,10 +44,15 @@ The experiments use the MVTec Anomaly Detection (MVTec AD) dataset.
 
 ## 3. Dataset
 
+### 3.1 Dataset Information
+
 **Dataset:** MVTec Anomaly Detection (MVTec AD)
 
-**Official Source:**  
-https://www.mvtec.com/company/research/datasets/mvtec-ad
+**Dataset Version:** Original MVTec AD (15 categories), not MVTec AD 2.
+
+**Official Source:**
+
+https://www.mvtec.com/research-teaching/datasets/mvtec-ad
 
 The dataset contains:
 
@@ -57,11 +62,13 @@ The dataset contains:
 - Normal and anomalous test images.
 - Pixel-level ground-truth masks for anomalous test images.
 
-### Categories
+### 3.2 Categories
+
+The dataset includes the following 15 categories:
 
 `bottle`, `cable`, `capsule`, `carpet`, `grid`, `hazelnut`, `leather`, `metal_nut`, `pill`, `screw`, `tile`, `toothbrush`, `transistor`, `wood`, and `zipper`.
 
-### Dataset Location
+### 3.3 Dataset Location
 
 The training script uses the following default dataset path:
 
@@ -69,36 +76,97 @@ The training script uses the following default dataset path:
 C:\Users\Dell\Downloads\mvtec_anomaly_detection
 ```
 
-If the dataset is stored in another location, provide the correct path using `--data_root`.
-
-### Dataset Download and Preparation
-
-1. Download MVTec AD from its official source.
-2. Extract the downloaded archive.
-3. Place the extracted dataset in the configured data directory.
-4. Ensure that the category folders and their training, testing, and ground-truth directories are available.
+If the dataset is stored in another location, provide the correct path using the `--data_root` argument.
 
 The raw dataset is not included in the Git repository.
 
-### Dataset Preparation Commands
+### 3.4 Dataset Download and Preparation
 
-Run the following commands from the project root directory to inspect the available dataset preparation options:
+1. Download the original MVTec AD dataset from the official source.
+2. Extract the downloaded archive.
+3. Place the extracted dataset in a local directory.
+4. Ensure that the category folders and their training, testing, and ground-truth directories are available.
 
-```powershell
-python -m data.download --help
-python -m data.extract --help
-python -m data.preprocessing --help
+For example, the extracted dataset should follow this structure:
+
+```text
+mvtec_anomaly_detection/
+│
+├── bottle/
+│   ├── train/
+│   │   └── good/
+│   ├── test/
+│   │   ├── good/
+│   │   ├── broken_large/
+│   │   ├── broken_small/
+│   │   └── contamination/
+│   └── ground_truth/
+│       ├── broken_large/
+│       ├── broken_small/
+│       └── contamination/
+│
+├── cable/
+├── capsule/
+├── carpet/
+├── grid/
+├── hazelnut/
+├── leather/
+├── metal_nut/
+├── pill/
+├── screw/
+├── tile/
+├── toothbrush/
+├── transistor/
+├── wood/
+└── zipper/
 ```
 
-After checking the supported arguments, execute the corresponding download, extraction, and preprocessing commands.
+### 3.5 Dataset Preparation Commands
 
-**Note:** The exact command-line arguments depend on the implementation of each preparation script.
+The current project does not use separate command-line scripts for downloading or extracting the dataset.
+
+Download and extract the dataset from the official MVTec source, then configure its location using `--data_root`.
+
+For example, in PowerShell:
+
+```powershell
+$env:MVTEC_ROOT = "D:\Datasets\mvtec_anomaly_detection"
+
+Test-Path "$env:MVTEC_ROOT\bottle\train\good"
+```
+
+The command should return `True` if the dataset directory exists.
+
+### 3.6 Data Preprocessing
+
+Data preprocessing is performed automatically by the project's dataset loader:
+
+`src/datasets/mvtec_dataset.py`
+
+A separate preprocessing command is not required.
+
+The implemented preprocessing steps include:
+
+- Loading images as RGB.
+- Resizing images to the selected input resolution (256 × 256 by default).
+- Converting images to PyTorch tensors.
+- Normalizing images using ImageNet mean and standard deviation.
+- Resizing ground-truth masks using nearest-neighbor interpolation.
+- Converting ground-truth masks into binary masks.
+
+The training data is split into training and validation subsets using only defect-free images from `train/good`.
+
+The default validation ratio is 20%, and the split is reproducible using the selected random seed.
+
+The official test directory is kept separate and contains normal and anomalous images.
+
+Data augmentation can optionally be enabled during training using the `--augment` argument. It is applied only to the training subset.
 
 ---
 
 ## 4. Environment Setup
 
-### Requirements
+### 4.1 Requirements
 
 - Python 3.12
 - PyTorch 2.11.0
@@ -106,26 +174,29 @@ After checking the supported arguments, execute the corresponding download, extr
 - CUDA 13.0
 - NVIDIA GPU recommended
 
-### Create and Activate the Virtual Environment
+### 4.2 Create and Activate the Virtual Environment
+
+Run the following commands from the project root directory:
 
 ```powershell
 py -3.12 -m venv .venv
+
 .\.venv\Scripts\Activate.ps1
 ```
 
-### Install PyTorch with CUDA Support
+### 4.3 Install PyTorch with CUDA Support
 
 ```powershell
 pip install torch==2.11.0+cu130 torchvision==0.26.0+cu130 --index-url https://download.pytorch.org/whl/cu130
 ```
 
-### Install Project Dependencies
+### 4.4 Install Project Dependencies
 
 ```powershell
 pip install -r requirements.txt
 ```
 
-### Verify the Installation
+### 4.5 Verify the Installation
 
 ```powershell
 python -c "import torch; print('PyTorch:', torch.__version__); print('CUDA available:', torch.cuda.is_available()); print('CUDA version:', torch.version.cuda); print('GPU:', torch.cuda.get_device_name(0) if torch.cuda.is_available() else 'Not detected')"
@@ -149,13 +220,6 @@ Industrial-Visual-Anomaly-Detection/
 │   ├── efficientad.yaml
 │   └── experiments.yaml
 │
-├── data/
-│   ├── download.py
-│   ├── extract.py
-│   ├── dataset.py
-│   ├── split.py
-│   └── preprocessing.py
-│
 ├── src/
 │   ├── datasets/
 │   │   ├── mvtec_dataset.py
@@ -176,6 +240,7 @@ Industrial-Visual-Anomaly-Detection/
 │   │   └── custom_losses.py
 │   │
 │   ├── training/
+│   │
 │   ├── train.py
 │   ├── evaluate.py
 │   └── generate_report_assets.py
@@ -199,9 +264,15 @@ Industrial-Visual-Anomaly-Detection/
 
 ## 6. Training
 
-The project uses a shared training and evaluation pipeline for all four models.
+The project uses a shared training pipeline for all four models.
 
 Run commands from the project root directory after activating the virtual environment.
+
+If the dataset is stored in a custom directory, add:
+
+`--data_root "D:\Datasets\mvtec_anomaly_detection"`
+
+to the training commands.
 
 ### 6.1 Baseline – HOG + One-Class SVM
 
@@ -239,7 +310,7 @@ python -m src.train --model patchcore --category cable --seed 42
 
 ### 6.6 Custom Training Arguments
 
-The training script supports:
+The training script supports the following arguments:
 
 | Argument | Description |
 |---|---|
@@ -262,45 +333,78 @@ Example:
 python -m src.train --model autoencoder --category bottle --seed 42 --epochs 15 --batch_size 4 --image_size 256 --lr 0.001
 ```
 
+To use a pretrained Autoencoder encoder:
+
+```powershell
+python -m src.train --model autoencoder --category bottle --seed 42 --pretrained
+```
+
+To disable the EfficientAD autoencoder branch:
+
+```powershell
+python -m src.train --model efficientad --category bottle --seed 42 --no_ae
+```
+
+To enable training augmentation:
+
+```powershell
+python -m src.train --model patchcore --category bottle --seed 42 --augment
+```
+
 ### 6.7 Multi-Seed Experiment
 
-The Bottle multi-seed experiment uses:
+The Bottle multi-seed experiment uses the following seeds:
 
 ```powershell
 python -m src.train --model autoencoder --category bottle --seed 42
+
 python -m src.train --model autoencoder --category bottle --seed 123
+
 python -m src.train --model autoencoder --category bottle --seed 2026
 ```
 
 The same seed values were used for the Bottle stability experiments with the other models.
 
-**Reproducibility Note:** The three-seed experiment was performed on the Bottle category. The main 15-category benchmark uses Seed 42.
+**Reproducibility Note:**
+
+The three-seed experiment was performed on the Bottle category. The main 15-category benchmark uses Seed 42.
 
 ---
 
 ## 7. Evaluation and Metrics
 
-The training pipeline evaluates each trained model and saves the experiment results as JSON files under:
+### 7.1 Evaluation Process
+
+Evaluation is integrated into the training pipeline.
+
+After each model finishes training, the pipeline evaluates it using the validation and test loaders and calculates the corresponding image-level and pixel-level metrics.
+
+The evaluation process uses validation data to determine anomaly decision thresholds. The test set is used for final evaluation.
+
+The evaluation results are automatically saved as JSON files under:
 
 ```text
 experiments/results/
 ```
 
-### Evaluation Command
+Each result file contains:
 
-To inspect the available evaluation arguments:
+- Model name.
+- Category.
+- Random seed.
+- Input image size.
+- Experiment configuration.
+- Image-level evaluation metrics.
+- Pixel-level evaluation metrics.
+- Training time.
+- Inference time.
+- Hardware information.
 
-```powershell
-python -m src.evaluate --help
-```
+**Note:** The current `src/evaluate.py` file contains evaluation functions used by the training pipeline. It does not provide an independent command-line evaluation interface. Therefore, evaluation is executed automatically through the training command.
 
-Use the supported arguments to evaluate a trained model independently.
+### 7.2 Evaluation Metrics
 
-**Note:** The training pipeline also performs evaluation automatically. The exact standalone evaluation command depends on the arguments implemented in `src/evaluate.py`.
-
-### Evaluation Metrics
-
-The evaluation includes:
+The evaluation includes the following metrics:
 
 **Image-Level Metrics**
 
@@ -314,9 +418,7 @@ The evaluation includes:
 - Pixel AUROC
 - Pixel IoU
 
-The evaluation also uses validation data to determine anomaly decision thresholds.
-
-### Generate Report Tables and Figures
+### 7.3 Generate Report Tables and Figures
 
 After the experiment results have been generated, run:
 
@@ -338,11 +440,15 @@ This command generates or updates:
 
 The project includes an interactive Streamlit application for visual inspection.
 
-### Run the Demo
+### 8.1 Run the Demo
+
+After training the required models and ensuring that their checkpoints are available, launch the application using:
 
 ```powershell
 streamlit run demo/app.py
 ```
+
+### 8.2 Demo Features
 
 The interface allows users to:
 
@@ -353,6 +459,8 @@ The interface allows users to:
 5. View the inspection result.
 6. View the predicted anomaly map.
 7. View the localization overlay.
+
+### 8.3 Supported Models
 
 The demo supports:
 
@@ -368,6 +476,8 @@ The demo requires the corresponding trained checkpoints to be available in the c
 
 The main benchmark evaluates all 15 MVTec AD categories using Seed 42.
 
+### 9.1 Main Model Comparison
+
 | Model | Image AUROC | F1-Score | Pixel AUROC | Pixel IoU |
 |---|---:|---:|---:|---:|
 | HOG + One-Class SVM | 0.6776 | 0.3942 | 0.6796 | 0.0804 |
@@ -375,7 +485,7 @@ The main benchmark evaluates all 15 MVTec AD categories using Seed 42.
 | PatchCore | **0.9648** | **0.9327** | **0.9730** | 0.1668 |
 | EfficientAD | 0.8509 | 0.7185 | 0.9314 | **0.1926** |
 
-### Best Results
+### 9.2 Best Results
 
 - PatchCore achieved the highest mean Image AUROC, F1-score, and Pixel AUROC across the 15 categories.
 - EfficientAD achieved the highest mean Pixel IoU.
@@ -388,7 +498,7 @@ These results are based on the Seed 42 evaluation across the 15 categories.
 
 ## 10. Hardware and Computational Cost
 
-### Hardware Used
+### 10.1 Hardware Used
 
 - GPU: NVIDIA GeForce RTX 3050 Laptop GPU
 - GPU Memory: 4 GB
@@ -397,7 +507,7 @@ These results are based on the Seed 42 evaluation across the 15 categories.
 - CUDA: 13.0
 - Operating System: Windows 11
 
-### Reported Computational Cost (Bottle Multi-Seed Experiment)
+### 10.2 Reported Computational Cost (Bottle Multi-Seed Experiment)
 
 | Model | Parameters | Checkpoint / Model Size (MB) | Memory Bank (MB) | Training Time (s) | Inference Time (ms) |
 |---|---:|---:|---:|---:|---:|
@@ -426,29 +536,31 @@ PatchCore's memory-bank size is reported separately from its model/checkpoint si
 
 The project includes the following experimental studies:
 
-### Hyperparameter Study
+### 11.1 Hyperparameter Study
 
 - Learning-rate comparison.
 - Image-resolution comparison.
 
-### Data Strategy Study
+### 11.2 Data Strategy Study
 
 - Training without augmentation.
 - Training with augmentation.
 
-### Pretrained vs Scratch
+### 11.3 Pretrained vs Scratch
 
 - Autoencoder trained from scratch.
 - Autoencoder using a pretrained encoder.
 
-### Ablation Study
+### 11.4 Ablation Study
 
 - EfficientAD with its autoencoder branch.
 - EfficientAD without its autoencoder branch.
 
-### Error Analysis
+### 11.5 Error Analysis
 
 The project examines false positives and false negatives using representative normal and anomalous samples, along with anomaly maps and localization results.
+
+The reported demo error-analysis examples are based on the displayed Streamlit cases and should not be interpreted as a complete evaluation of the entire MVTec AD test set.
 
 ---
 
@@ -456,33 +568,186 @@ The project examines false positives and false negatives using representative no
 
 Model checkpoints and the raw MVTec AD dataset are not included in the Git repository because of their size.
 
-They should be stored in a shared drive folder, and the corresponding access link should be added here:
+They should be stored in a shared drive folder, and the corresponding access link is provided below:
 
-**Shared Drive Link:** (https://drive.google.com/drive/folders/1Hb7WIvnyWMhRCj_Ql9KuAfepi_DxeZH2?usp=drive_link)
+**Shared Drive Link:**
+
+https://drive.google.com/drive/folders/1Hb7WIvnyWMhRCj_Ql9KuAfepi_DxeZH2?usp=drive_link
 
 The `.gitignore` file excludes large checkpoint files and raw dataset folders from Git tracking.
 
 ---
 
-## 13. Credits and References
+## 13. Dataset Source and License
 
-### Dataset
+This project uses the original **MVTec Anomaly Detection (MVTec AD)** dataset, not MVTec AD 2.
 
-Bergmann et al., MVTec Anomaly Detection Dataset (MVTec AD).
+The dataset was developed by MVTec Software GmbH for research on unsupervised industrial anomaly detection. It contains 5,354 high-resolution images across 15 object and texture categories, including defect-free training images, normal and anomalous test images, and pixel-level ground-truth masks.
 
-Official Source:  
-https://www.mvtec.com/company/research/datasets/mvtec-ad
+### 13.1 Official Dataset Source
 
-### Models and Methods
+https://www.mvtec.com/research-teaching/datasets/mvtec-ad
 
-- **One-Class SVM:** Classical anomaly detection baseline.
-- **CNN Autoencoder:** Reconstruction-based anomaly detection.
-- **PatchCore:** Patch-based feature memory-bank anomaly detection.
-- **EfficientAD:** Student-teacher-based anomaly detection.
+### 13.2 Dataset License
 
-External implementations, pretrained models, and research methods should be acknowledged and cited using their original publications and official sources.
+The dataset is released under the:
 
-### External Code and Libraries
+**Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License (CC BY-NC-SA 4.0).**
+
+License URL:
+
+https://creativecommons.org/licenses/by-nc-sa/4.0/
+
+### 13.3 Usage Conditions
+
+- Attribution to the original dataset authors and source is required.
+- The dataset must not be used for commercial purposes.
+- Adaptations and redistributed material must comply with the ShareAlike requirements of the license.
+- Users must review and comply with the original license terms before sharing or reusing the dataset.
+
+The raw dataset is not redistributed as part of this GitHub repository. Users must obtain it from the official MVTec source and comply with its license.
+
+### 13.4 Dataset Reference
+
+Bergmann, P., Fauser, M., Sattlegger, D., and Steger, C. (2019).
+
+"MVTec AD — A Comprehensive Real-World Dataset for Unsupervised Anomaly Detection."
+
+Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR), pp. 9584–9592.
+
+https://doi.org/10.1109/CVPR.2019.00982
+
+---
+
+## 14. Model Sources, Implementations, and Pretrained Weights
+
+The models in this project were implemented using PyTorch and TorchVision. Their architectural designs and anomaly detection strategies are based on the corresponding research literature.
+
+The project-specific implementations are available in the `src/models/` directory.
+
+### 14.1 HOG + One-Class SVM
+
+The classical baseline combines Histogram of Oriented Gradients (HOG) feature extraction with a One-Class Support Vector Machine (OC-SVM) for anomaly detection.
+
+**References:**
+
+Dalal, N., and Triggs, B. (2005).
+
+"Histograms of Oriented Gradients for Human Detection."
+
+IEEE Computer Society Conference on Computer Vision and Pattern Recognition (CVPR).
+
+Schölkopf, B., et al. (2001).
+
+"Estimating the Support of a High-Dimensional Distribution."
+
+Neural Computation, 13(7), 1443–1471.
+
+### 14.2 CNN Autoencoder
+
+The CNN Autoencoder is a project-specific reconstruction-based architecture implemented in PyTorch.
+
+For the pretrained-versus-scratch experiment, the pretrained version uses a ResNet18 encoder initialized with the default pretrained weights provided by TorchVision:
+
+```python
+torchvision.models.resnet18(
+    weights=torchvision.models.ResNet18_Weights.DEFAULT
+)
+```
+
+The scratch version initializes its encoder without pretrained weights.
+
+### 14.3 PatchCore
+
+PatchCore is based on the method proposed in:
+
+Roth, K., et al. (2022).
+
+"Towards Total Recall in Industrial Anomaly Detection."
+
+Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR).
+
+Paper:
+
+https://arxiv.org/abs/2106.08265
+
+The project implements a PatchCore-based approach using:
+
+- A pretrained Wide ResNet-50-2 feature extraction backbone.
+- Intermediate feature maps from the backbone.
+- A memory bank of normal patch embeddings.
+- Greedy coreset selection to reduce the memory bank.
+- k-nearest-neighbor distance-based anomaly scoring.
+
+The backbone is initialized using the default TorchVision pretrained weights:
+
+```python
+torchvision.models.wide_resnet50_2(
+    weights=torchvision.models.Wide_ResNet50_2_Weights.DEFAULT
+)
+```
+
+The backbone remains frozen during the experiment. The memory bank is constructed from the training data.
+
+### 14.4 EfficientAD
+
+EfficientAD is based on the student-teacher anomaly detection approach introduced in:
+
+Batzner, K., Heckler, L., and König, R. (2024).
+
+"EfficientAD: Accurate Visual Anomaly Detection at Millisecond-Level Latencies."
+
+Proceedings of the IEEE/CVF Winter Conference on Applications of Computer Vision (WACV), pp. 128–138.
+
+Paper:
+
+https://arxiv.org/abs/2303.14535
+
+The project implements an EfficientAD-inspired architecture containing:
+
+- A frozen pretrained ResNet18 teacher feature extractor.
+- A trainable student network based on a Patch Description Network (PDN)-style architecture.
+- An optional autoencoder branch.
+- Feature discrepancy-based anomaly maps.
+
+The teacher network is initialized using TorchVision's default pretrained ResNet18 weights:
+
+```python
+torchvision.models.resnet18(
+    weights=torchvision.models.ResNet18_Weights.DEFAULT
+)
+```
+
+The student network and the optional autoencoder branch are trained within the project training pipeline.
+
+### 14.5 Pretrained Weights and Implementation Notes
+
+Pretrained classification weights are provided by TorchVision and are automatically downloaded and cached when the corresponding model is initialized for the first time, if they are not already available locally.
+
+**Official TorchVision documentation:**
+
+https://docs.pytorch.org/vision/stable/models.html
+
+The pretrained backbones used in this project are:
+
+| Model | Backbone | Pretrained Weights Source |
+|---|---|---|
+| CNN Autoencoder (pretrained experiment) | ResNet18 | TorchVision |
+| PatchCore | Wide ResNet-50-2 | TorchVision |
+| EfficientAD teacher | ResNet18 | TorchVision |
+
+The project does not claim to use pretrained PatchCore or EfficientAD experiment checkpoints from their original repositories. Instead, it uses the research methods as references and implements the corresponding project-specific pipelines in PyTorch.
+
+The source code for these implementations is available in:
+
+- `src/models/autoencoder.py`
+- `src/models/patchcore.py`
+- `src/models/efficientad.py`
+- `src/training/`
+
+---
+
+## 15. External Code and Libraries
 
 The project uses the following major libraries:
 
@@ -492,12 +757,14 @@ The project uses the following major libraries:
 - OpenCV
 - Scikit-learn
 - Streamlit
+- PyYAML
+- Pillow
 
 Any external code or implementation reused in the project should be credited with its original repository or publication.
 
 ---
 
-## 14. Limitations
+## 16. Limitations
 
 - The three-seed stability experiment was performed on the Bottle category rather than all 15 categories.
 - Some subtle or low-contrast defects may be difficult to detect.
@@ -505,10 +772,11 @@ Any external code or implementation reused in the project should be credited wit
 - Computational measurements depend on the available hardware.
 - Peak RAM and VRAM usage were not recorded.
 - The Streamlit demo requires the corresponding trained checkpoints.
+- The project-specific implementations may differ from the complete original implementations described in the cited research papers.
 
 ---
 
-## 15. Project Deliverables
+## 17. Project Deliverables
 
 The project repository includes:
 
@@ -524,37 +792,65 @@ The project repository includes:
 
 ---
 
-## 16. How to Run the Project – Quick Start
+## 18. How to Run the Project – Quick Start
 
 Run the following commands from the project root directory.
 
+### Step 1. Activate the Environment
+
 ```powershell
-# Activate environment
 .\.venv\Scripts\Activate.ps1
+```
 
-# Train a model
-python -m src.train --model patchcore --category bottle --seed 42
+### Step 2. Set the Dataset Location
 
-# Generate report tables and figures
+```powershell
+$env:MVTEC_ROOT = "D:\Datasets\mvtec_anomaly_detection"
+```
+
+### Step 3. Train a Model
+
+```powershell
+python -m src.train --model patchcore --category bottle --seed 42 --data_root "$env:MVTEC_ROOT"
+```
+
+### Step 4. Generate Report Tables and Figures
+
+```powershell
 python -m src.generate_report_assets
+```
 
-# Launch the demo
+### Step 5. Launch the Demo
+
+```powershell
 streamlit run demo/app.py
 ```
 
-For standalone evaluation, first inspect the supported arguments:
+**Evaluation Note:** Evaluation is performed automatically as part of the training pipeline. The resulting metrics are saved under `experiments/results/`.
 
-```powershell
-python -m src.evaluate --help
-```
+---
 
-For dataset preparation, inspect the supported commands:
+## 19. References
 
-```powershell
-python -m data.download --help
-python -m data.extract --help
-python -m data.preprocessing --help
-```
+1. Bergmann, P., Fauser, M., Sattlegger, D., and Steger, C. (2019). "MVTec AD — A Comprehensive Real-World Dataset for Unsupervised Anomaly Detection." CVPR, pp. 9584–9592. https://doi.org/10.1109/CVPR.2019.00982
+
+2. Roth, K., et al. (2022). "Towards Total Recall in Industrial Anomaly Detection." CVPR. https://arxiv.org/abs/2106.08265
+
+3. Batzner, K., Heckler, L., and König, R. (2024). "EfficientAD: Accurate Visual Anomaly Detection at Millisecond-Level Latencies." WACV. https://arxiv.org/abs/2303.14535
+
+4. He, K., Zhang, X., Ren, S., and Sun, J. (2016). "Deep Residual Learning for Image Recognition." CVPR, pp. 770–778. https://doi.org/10.1109/CVPR.2016.90
+
+5. Dalal, N., and Triggs, B. (2005). "Histograms of Oriented Gradients for Human Detection." CVPR, pp. 886–893. https://doi.org/10.1109/CVPR.2005.177
+
+6. Schölkopf, B., Platt, J. C., Shawe-Taylor, J., Smola, A. J., and Williamson, R. C. (2001). "Estimating the Support of a High-Dimensional Distribution." Neural Computation, 13(7), 1443–1471. https://doi.org/10.1162/089976601750264965
+
+7. TorchVision. "Models and Pretrained Weights." https://docs.pytorch.org/vision/stable/models.html
+
+8. PyTorch. "PyTorch Documentation." https://pytorch.org/docs/stable/index.html
+
+9. Scikit-learn. "One-Class SVM." https://scikit-learn.org/stable/modules/generated/sklearn.svm.OneClassSVM.html
+
+10. Streamlit. "Streamlit Documentation." https://docs.streamlit.io/
 
 ---
 
