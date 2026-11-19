@@ -27,8 +27,6 @@ The project compares four approaches:
 
 The experiments use the MVTec Anomaly Detection (MVTec AD) dataset.
 
----
-
 ## 2. Team Members
 
 | Student Name | Student ID | Responsibility |
@@ -40,19 +38,13 @@ The experiments use the MVTec Anomaly Detection (MVTec AD) dataset.
 | Reham Sayed Ezz Eldin | 202301138 | EfficientAD |
 | Menna Mohamed Makram | 202303532 | Evaluation and Streamlit Demo |
 
----
-
 ## 3. Dataset
 
 ### 3.1 Dataset Information
 
-**Dataset:** MVTec Anomaly Detection (MVTec AD)
-
-**Dataset Version:** Original MVTec AD (15 categories), not MVTec AD 2.
-
-**Official Source:**
-
-https://www.mvtec.com/research-teaching/datasets/mvtec-ad
+- **Dataset:** MVTec Anomaly Detection (MVTec AD)
+- **Dataset Version:** Original MVTec AD (15 categories), not MVTec AD 2.
+- **Official Source:** https://www.mvtec.com/research-teaching/datasets/mvtec-ad
 
 The dataset contains:
 
@@ -66,7 +58,7 @@ The dataset contains:
 
 The dataset includes the following 15 categories:
 
-`bottle`, `cable`, `capsule`, `carpet`, `grid`, `hazelnut`, `leather`, `metal_nut`, `pill`, `screw`, `tile`, `toothbrush`, `transistor`, `wood`, and `zipper`.
+bottle, cable, capsule, carpet, grid, hazelnut, leather, metal_nut, pill, screw, tile, toothbrush, transistor, wood, and zipper.
 
 ### 3.3 Dataset Location
 
@@ -162,8 +154,6 @@ The official test directory is kept separate and contains normal and anomalous i
 
 Data augmentation can optionally be enabled during training using the `--augment` argument. It is applied only to the training subset.
 
----
-
 ## 4. Environment Setup
 
 ### 4.1 Requirements
@@ -201,8 +191,6 @@ pip install -r requirements.txt
 ```powershell
 python -c "import torch; print('PyTorch:', torch.__version__); print('CUDA available:', torch.cuda.is_available()); print('CUDA version:', torch.version.cuda); print('GPU:', torch.cuda.get_device_name(0) if torch.cuda.is_available() else 'Not detected')"
 ```
-
----
 
 ## 5. Project Structure
 
@@ -260,8 +248,6 @@ Industrial-Visual-Anomaly-Detection/
 └── contributions/
 ```
 
----
-
 ## 6. Training
 
 The project uses a shared training pipeline for all four models.
@@ -270,7 +256,9 @@ Run commands from the project root directory after activating the virtual enviro
 
 If the dataset is stored in a custom directory, add:
 
-`--data_root "D:\Datasets\mvtec_anomaly_detection"`
+```powershell
+--data_root "D:\Datasets\mvtec_anomaly_detection"
+```
 
 to the training commands.
 
@@ -353,7 +341,7 @@ python -m src.train --model patchcore --category bottle --seed 42 --augment
 
 ### 6.7 Multi-Seed Experiment
 
-The Bottle multi-seed experiment uses the following seeds:
+The multi-seed experiment uses the following seeds:
 
 ```powershell
 python -m src.train --model autoencoder --category bottle --seed 42
@@ -363,13 +351,11 @@ python -m src.train --model autoencoder --category bottle --seed 123
 python -m src.train --model autoencoder --category bottle --seed 2026
 ```
 
-The same seed values were used for the Bottle stability experiments with the other models.
+The same seed values were used across all 15 MVTec AD categories for all four models.
 
 **Reproducibility Note:**
 
-The three-seed experiment was performed on the Bottle category. The main 15-category benchmark uses Seed 42.
-
----
+The three-seed stability experiment (seeds 42, 123, 2026) was executed across all 15 MVTec AD categories for all four models (180 core runs + 7 ablation, hyperparameter, and data-strategy runs = 187 total experiments).
 
 ## 7. Evaluation and Metrics
 
@@ -434,8 +420,6 @@ This command generates or updates:
 - Per-class comparison charts.
 - Error-analysis examples.
 
----
-
 ## 8. Streamlit Demo
 
 The project includes an interactive Streamlit application for visual inspection.
@@ -452,13 +436,13 @@ streamlit run demo/app.py
 
 The interface allows users to:
 
-1. Select a product category.
-2. Select a supported deep-learning model.
-3. Upload a product image.
-4. Adjust the anomaly decision threshold.
-5. View the inspection result.
-6. View the predicted anomaly map.
-7. View the localization overlay.
+- Select a product category.
+- Select a supported deep-learning model.
+- Upload a product image.
+- Adjust the anomaly decision threshold.
+- View the inspection result.
+- View the predicted anomaly map.
+- View the localization overlay.
 
 ### 8.3 Supported Models
 
@@ -470,11 +454,9 @@ The demo supports:
 
 The demo requires the corresponding trained checkpoints to be available in the configured checkpoints directory.
 
----
-
 ## 9. Experimental Results
 
-The main benchmark evaluates all 15 MVTec AD categories using Seed 42.
+The main benchmark evaluates all 15 MVTec AD categories across three random seeds (42, 123, 2026), with Seed 42 per-category comparisons reported below.
 
 ### 9.1 Main Model Comparison
 
@@ -482,8 +464,8 @@ The main benchmark evaluates all 15 MVTec AD categories using Seed 42.
 |---|---:|---:|---:|---:|
 | HOG + One-Class SVM | 0.6776 | 0.3942 | 0.6796 | 0.0804 |
 | CNN Autoencoder | 0.7757 | 0.5267 | 0.8220 | 0.1016 |
-| PatchCore | **0.9648** | **0.9327** | **0.9730** | 0.1668 |
-| EfficientAD | 0.8509 | 0.7185 | 0.9314 | **0.1926** |
+| PatchCore | 0.9648 | 0.9327 | 0.9730 | 0.1668 |
+| EfficientAD | 0.8509 | 0.7185 | 0.9314 | 0.1926 |
 
 ### 9.2 Best Results
 
@@ -492,29 +474,27 @@ The main benchmark evaluates all 15 MVTec AD categories using Seed 42.
 - PatchCore demonstrated strong image-level anomaly detection performance.
 - EfficientAD achieved better average localization overlap in the reported benchmark.
 
-These results are based on the Seed 42 evaluation across the 15 categories.
-
----
+These results are based on the evaluation across all 15 MVTec AD categories.
 
 ## 10. Hardware and Computational Cost
 
 ### 10.1 Hardware Used
 
-- GPU: NVIDIA GeForce RTX 3050 Laptop GPU
-- GPU Memory: 4 GB
-- Python: 3.12.5
-- PyTorch: 2.11.0
-- CUDA: 13.0
-- Operating System: Windows 11
+- **GPU:** NVIDIA GeForce RTX 3050 Laptop GPU
+- **GPU Memory:** 4 GB
+- **Python:** 3.12.5
+- **PyTorch:** 2.11.0
+- **CUDA:** 13.0
+- **Operating System:** Windows 11
 
 ### 10.2 Reported Computational Cost (Bottle Multi-Seed Experiment)
 
 | Model | Parameters | Checkpoint / Model Size (MB) | Memory Bank (MB) | Training Time (s) | Inference Time (ms) |
 |---|---:|---:|---:|---:|---:|
-| Baseline | N/A | 0.59 | 0 | 9.72 | 61.32 |
-| Autoencoder | 2,430,915 | 9.30 | 0 | 95.50 | 35.50 |
+| Baseline | N/A | 0.590 | N/A | 9.72 | 61.32 |
+| Autoencoder | 2,430,915 | 9.30 | N/A | 95.50 | 35.50 |
 | PatchCore | 24,862,528 | 5.86 | 5.86 | 18.29 | 61.41 |
-| EfficientAD | 3,315,264 | 12.68 | 0 | 259.11 | 62.04 |
+| EfficientAD | 3,315,264 | 12.68 | N/A | 259.11 | 62.04 |
 
 **Note:** These measurements are from the reported Bottle experiment and should not be interpreted as fixed runtimes for every category or hardware configuration.
 
@@ -530,16 +510,14 @@ Peak system RAM and GPU VRAM usage were not recorded.
 
 PatchCore's memory-bank size is reported separately from its model/checkpoint size.
 
----
-
 ## 11. Experiments
 
 The project includes the following experimental studies:
 
 ### 11.1 Hyperparameter Study
 
-- Learning-rate comparison.
-- Image-resolution comparison.
+- Learning-rate comparison (lr = 0.0005 vs lr = 0.001).
+- Image-resolution comparison (128x128, 256x256, and 320x320).
 
 ### 11.2 Data Strategy Study
 
@@ -562,8 +540,6 @@ The project examines false positives and false negatives using representative no
 
 The reported demo error-analysis examples are based on the displayed Streamlit cases and should not be interpreted as a complete evaluation of the entire MVTec AD test set.
 
----
-
 ## 12. Checkpoints and Large Files
 
 Model checkpoints and the raw MVTec AD dataset are not included in the Git repository because of their size.
@@ -576,11 +552,9 @@ https://drive.google.com/drive/folders/1Hb7WIvnyWMhRCj_Ql9KuAfepi_DxeZH2?usp=dri
 
 The `.gitignore` file excludes large checkpoint files and raw dataset folders from Git tracking.
 
----
-
 ## 13. Dataset Source and License
 
-This project uses the original **MVTec Anomaly Detection (MVTec AD)** dataset, not MVTec AD 2.
+This project uses the original MVTec Anomaly Detection (MVTec AD) dataset, not MVTec AD 2.
 
 The dataset was developed by MVTec Software GmbH for research on unsupervised industrial anomaly detection. It contains 5,354 high-resolution images across 15 object and texture categories, including defect-free training images, normal and anomalous test images, and pixel-level ground-truth masks.
 
@@ -616,8 +590,6 @@ Bergmann, P., Fauser, M., Sattlegger, D., and Steger, C. (2019).
 Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR), pp. 9584–9592.
 
 https://doi.org/10.1109/CVPR.2019.00982
-
----
 
 ## 14. Model Sources, Implementations, and Pretrained Weights
 
@@ -667,7 +639,7 @@ Roth, K., et al. (2022).
 
 Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR).
 
-Paper:
+**Paper:**
 
 https://arxiv.org/abs/2106.08265
 
@@ -699,7 +671,7 @@ Batzner, K., Heckler, L., and König, R. (2024).
 
 Proceedings of the IEEE/CVF Winter Conference on Applications of Computer Vision (WACV), pp. 128–138.
 
-Paper:
+**Paper:**
 
 https://arxiv.org/abs/2303.14535
 
@@ -745,8 +717,6 @@ The source code for these implementations is available in:
 - `src/models/efficientad.py`
 - `src/training/`
 
----
-
 ## 15. External Code and Libraries
 
 The project uses the following major libraries:
@@ -762,19 +732,14 @@ The project uses the following major libraries:
 
 Any external code or implementation reused in the project should be credited with its original repository or publication.
 
----
-
 ## 16. Limitations
 
-- The three-seed stability experiment was performed on the Bottle category rather than all 15 categories.
 - Some subtle or low-contrast defects may be difficult to detect.
 - Reconstruction-based methods may produce false positives on naturally irregular textures.
 - Computational measurements depend on the available hardware.
 - Peak RAM and VRAM usage were not recorded.
 - The Streamlit demo requires the corresponding trained checkpoints.
 - The project-specific implementations may differ from the complete original implementations described in the cited research papers.
-
----
 
 ## 17. Project Deliverables
 
@@ -789,8 +754,6 @@ The project repository includes:
 - Streamlit demonstration application.
 - Technical report and presentation.
 - Individual contribution logs.
-
----
 
 ## 18. How to Run the Project – Quick Start
 
@@ -828,8 +791,6 @@ streamlit run demo/app.py
 
 **Evaluation Note:** Evaluation is performed automatically as part of the training pipeline. The resulting metrics are saved under `experiments/results/`.
 
----
-
 ## 19. References
 
 1. Bergmann, P., Fauser, M., Sattlegger, D., and Steger, C. (2019). "MVTec AD — A Comprehensive Real-World Dataset for Unsupervised Anomaly Detection." CVPR, pp. 9584–9592. https://doi.org/10.1109/CVPR.2019.00982
@@ -851,7 +812,3 @@ streamlit run demo/app.py
 9. Scikit-learn. "One-Class SVM." https://scikit-learn.org/stable/modules/generated/sklearn.svm.OneClassSVM.html
 
 10. Streamlit. "Streamlit Documentation." https://docs.streamlit.io/
-
----
-
-**End of README**
